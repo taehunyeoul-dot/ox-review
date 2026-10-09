@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="OX 복습">
+<meta name="theme-color" content="#f3f5f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e1116" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<style>html{box-sizing:border-box;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head><body>
+<script>window.OX_ENC=true</script>
+<title>중개사 OX 복습</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* 한 화면 앱: 위 = 문제 카드(뒤집히면 해설), 아래 = 답 버튼. 홈은 과목 칩 + 장 목록 한 줄. */
+:root{
+  --bg:#f3f5f8; --card:#ffffff; --ink:#151a22; --sub:#5d6675; --line:#e2e6ec; --soft:#eef1f5;
+  --accent:#1f4fd8; --o:#1f5fe0; --o-soft:#e6eeff; --x:#d92c4b; --x-soft:#ffe9ed;
+  --ok:#11845b; --ok-soft:#e2f5ec; --warn:#b45f06; --warn-soft:#fdf0dc;
+  --font:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  --fs:17px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0e1116; --card:#181c23; --ink:#eceff4; --sub:#9aa3b2; --line:#2a303a; --soft:#20252e;
+  --accent:#7fa2ff; --o:#6f9bff; --o-soft:#1b2a4d; --x:#ff6f88; --x-soft:#4a1d27;
+  --ok:#4fd1a1; --ok-soft:#143326; --warn:#f0b35a; --warn-soft:#3a2a10; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0e1116; --card:#181c23; --ink:#eceff4; --sub:#9aa3b2; --line:#2a303a; --soft:#20252e;
+  --accent:#7fa2ff; --o:#6f9bff; --o-soft:#1b2a4d; --x:#ff6f88; --x-soft:#4a1d27;
+  --ok:#4fd1a1; --ok-soft:#143326; --warn:#f0b35a; --warn-soft:#3a2a10; color-scheme:dark }
+:root[data-fs="s"]{--fs:15.5px} :root[data-fs="l"]{--fs:19px} :root[data-fs="xl"]{--fs:21px}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.55;-webkit-text-size-adjust:100%;overflow:hidden;word-break:keep-all;overflow-wrap:anywhere}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{height:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;padding-inline:16px}
+.view{flex:1;min-height:0;display:flex;flex-direction:column}
+
+/* 홈 */
+.top{display:flex;align-items:center;gap:10px;padding-block:14px 10px}
+.top h1{font-size:20px;font-weight:700;margin:0;letter-spacing:-.02em}
+.dday{font-size:12.5px;font-weight:700;color:var(--accent);background:var(--o-soft);padding:3px 9px;border-radius:999px;font-variant-numeric:tabular-nums}
+.grow{flex:1}
+.icon-btn{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;color:var(--sub);font-weight:700}
+.icon-btn:active{background:var(--soft)}
+.sync{font-size:11.5px;color:var(--sub)}
+.home-scroll{flex:1;min-height:0;overflow-y:auto;padding-bottom:24px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
+.today{background:var(--card);border-radius:16px;padding:16px;display:flex;align-items:center;gap:14px;border:1px solid var(--line)}
+.today .n{font-size:30px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.1}
+.today .lab{font-size:12.5px;color:var(--sub)}
+.today .stat{font-size:12.5px;color:var(--sub);margin-top:4px;font-variant-numeric:tabular-nums}
+.btn{background:var(--accent);color:#fff;font-weight:700;border-radius:12px;padding:12px 18px;font-size:15px}
+:root[data-theme="dark"] .btn{color:#0e1116}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .btn{color:#0e1116} }
+.btn[disabled]{opacity:.4}
+.btn.ghost{background:var(--soft);color:var(--ink)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-block:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-weight:500;font-size:14px;color:var(--sub)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip small{font-weight:400;opacity:.7;margin-left:4px;font-variant-numeric:tabular-nums}
+/* 스크롤 상자 안의 항목이 줄어들지 않게(줄어들면 스크롤 대신 잘림) */
+.home-scroll>*,.back-body>*,.sheet>*,.mc>*{flex:none}
+.chlist{display:flex;flex-direction:column;background:var(--card);border-radius:16px;border:1px solid var(--line);overflow:hidden}
+.ch{display:grid;grid-template-columns:auto 1fr auto;gap:4px 12px;align-items:center;text-align:left;padding:14px 16px;border-bottom:1px solid var(--line);width:100%}
+.ch:last-child{border-bottom:0}
+.ch:active{background:var(--soft)}
+.ch .no{font-weight:700;color:var(--sub);font-size:13px;font-variant-numeric:tabular-nums;min-width:30px}
+.ch .ti{font-weight:500;font-size:15px;line-height:1.35}
+.ch .due{font-size:12px;font-weight:700;color:var(--accent);background:var(--o-soft);border-radius:999px;padding:2px 8px;font-variant-numeric:tabular-nums}
+.ch .meta{grid-column:2 / 4;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums}
+.bar{flex:1;height:5px;border-radius:3px;background:var(--soft);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar .m{background:var(--ok)} .bar .s{background:var(--accent);opacity:.45}
+.empty{color:var(--sub);text-align:center;padding:40px 10px;font-size:14px}
+.legend{font-size:11.5px;color:var(--sub);display:flex;gap:12px;justify-content:flex-end;padding-inline:4px}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:4px;vertical-align:1px}
+
+/* 시트 */
+.scrim{position:fixed;inset:0;background:rgba(10,14,20,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{background:var(--card);width:100%;max-width:760px;border-radius:20px 20px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px;max-height:86%;overflow-y:auto}
+.sheet h2{font-size:17px;margin:0 0 2px;font-weight:700;line-height:1.35}
+.sheet p{margin:0;color:var(--sub);font-size:13px}
+.mode{display:flex;align-items:center;gap:12px;text-align:left;padding:14px;border-radius:12px;background:var(--soft);width:100%}
+.mode b{font-size:15px}.mode span{font-size:12.5px;color:var(--sub);display:block}
+.mode .cnt{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;color:var(--accent)}
+.mode[disabled]{opacity:.45}
+.mode.main{background:var(--accent);color:#fff}.mode.main span,.mode.main .cnt{color:inherit;opacity:.9}
+:root[data-theme="dark"] .mode.main{color:#0e1116}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .mode.main{color:#0e1116} }
+
+/* 퀴즈 */
+.qtop{display:flex;align-items:center;gap:8px;padding-block:10px 8px}
+.qtop .name{font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.qtop .cnt{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--sub)}
+.prog{height:3px;background:var(--line);border-radius:2px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.stage{flex:1;min-height:0;padding-block:12px;perspective:1400px}
+.card{height:100%;background:var(--card);border:1px solid var(--line);border-radius:20px;display:flex;flex-direction:column;overflow:hidden;transform-origin:center}
+.card.out{animation:fout .17s ease-in forwards}
+.card.in{animation:fin .2s ease-out forwards}
+@keyframes fout{to{transform:rotateY(90deg)}}
+@keyframes fin{from{transform:rotateY(-90deg)}to{transform:rotateY(0)}}
+@media (prefers-reduced-motion: reduce){.card.out,.card.in{animation-duration:.01s}}
+.tags{display:flex;flex-wrap:wrap;gap:6px;padding:14px 18px 0;font-size:11.5px}
+.tag{padding:2px 8px;border-radius:6px;background:var(--soft);color:var(--sub);font-weight:500}
+.tag.gi{background:var(--warn-soft);color:var(--warn)}
+.front{flex:1;min-height:0;overflow-y:auto;padding:18px 20px 22px;display:flex}
+.front .qt{margin:auto 0;font-size:calc(var(--fs) + 2px);line-height:1.7;font-weight:500;letter-spacing:-.01em;white-space:pre-line}
+.back-head{padding:14px 18px 14px;border-bottom:1px solid var(--line);display:flex;gap:12px;align-items:flex-start;max-height:42%;overflow-y:auto;flex:none}
+.mark{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-size:22px;font-weight:700;line-height:1}
+.mark.o{background:var(--o-soft);color:var(--o)} .mark.x{background:var(--x-soft);color:var(--x)} .mark.n{background:var(--soft);color:var(--ink);font-size:13px}
+.back-head .res{font-size:12.5px;font-weight:700;margin-bottom:3px}
+.res.right{color:var(--ok)} .res.wrong{color:var(--x)}
+.back-head .qt{font-size:calc(var(--fs) - 1.5px);line-height:1.6;color:var(--ink);white-space:pre-line}
+.back-body{flex:1;min-height:0;overflow-y:auto;padding:16px 18px 22px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
+.fix{background:var(--ok-soft);border-radius:12px;padding:12px 14px;font-size:calc(var(--fs) - 1px);line-height:1.65}
+.fix .k{display:block;font-size:11.5px;font-weight:700;color:var(--ok);margin-bottom:2px;letter-spacing:.02em}
+.exp{font-size:var(--fs);line-height:1.8;max-width:38em}
+.exp b,.fix b{font-weight:700}
+.exp b{background:linear-gradient(transparent 62%,var(--o-soft) 62%)}
+.cite{font-size:12px;color:var(--sub)}
+.figbtn{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;display:block;width:100%;padding:0}
+.figbtn img{display:block;width:100%;height:auto}
+.figcap{font-size:11.5px;color:var(--sub);margin-top:-8px}
+.flag{align-self:flex-start;font-size:12px;color:var(--sub);padding:6px 10px;border-radius:8px;background:var(--soft)}
+.flag[aria-pressed="true"]{background:var(--warn-soft);color:var(--warn);font-weight:700}
+
+.ans{flex:none;padding-bottom:14px;display:flex;flex-direction:column;gap:8px}
+.ox{display:grid;grid-template-columns:1fr 1fr;gap:12px;height:min(26vh,190px);min-height:120px}
+.ox button{border-radius:20px;font-size:64px;font-weight:700;line-height:1;display:grid;place-items:center;border:1px solid transparent}
+.ox .bo{background:var(--o-soft);color:var(--o)} .ox .bx{background:var(--x-soft);color:var(--x)}
+.ox button:active{transform:scale(.98)}
+.rate{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.rate button{border-radius:16px;padding:16px 6px;background:var(--card);border:1px solid var(--line);font-weight:700;font-size:16px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.rate button small{font-weight:400;font-size:12px;color:var(--sub);font-variant-numeric:tabular-nums}
+.rate .h{color:var(--x)} .rate .e{color:var(--ok)}
+.rate button:active{background:var(--soft)}
+.hint{font-size:12px;color:var(--sub);text-align:center}
+.next{width:100%;padding:17px;border-radius:16px;font-size:16px}
+.mc{display:flex;flex-direction:column;gap:8px;max-height:46vh;overflow-y:auto}
+.mc button{text-align:left;padding:13px 14px;border-radius:14px;background:var(--card);border:1px solid var(--line);font-size:calc(var(--fs) - 1px);display:flex;gap:10px;line-height:1.5}
+.mc button .i{font-weight:700;color:var(--sub)}
+.mc button:active{background:var(--soft)}
+.num{display:flex;gap:10px;align-items:stretch}
+.num .box{flex:1;display:flex;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding-inline:14px;min-width:0}
+.num input{flex:1;min-width:0;border:0;background:none;font:inherit;font-size:20px;font-weight:700;color:var(--ink);padding:14px 0;font-variant-numeric:tabular-nums;outline:none;text-align:right}
+.num .u{color:var(--sub);margin-left:8px;font-size:14px}
+.choice-ans{font-size:calc(var(--fs) - 1px);background:var(--o-soft);border-radius:12px;padding:12px 14px;line-height:1.6}
+.choice-ans .k{display:block;font-size:11.5px;font-weight:700;color:var(--o);margin-bottom:2px}
+
+/* 끝 */
+.done{flex:1;display:flex;flex-direction:column;justify-content:center;gap:18px;padding-block:20px}
+.done h2{font-size:24px;margin:0;letter-spacing:-.02em}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kv div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 12px}
+.kv b{display:block;font-size:24px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kv span{font-size:12px;color:var(--sub)}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row .btn{flex:1;min-width:140px}
+
+.zoom{position:fixed;inset:0;background:rgba(8,10,14,.92);z-index:30;overflow:auto;display:flex;padding:calc(12px + env(safe-area-inset-top,0px)) 8px 12px}
+.zoom img{margin:auto;max-width:none;width:max(100%,900px);background:#fff;border-radius:8px}
+.zoom button{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:12px;background:#fff;color:#111;border-radius:999px;padding:8px 14px;font-weight:700;font-size:13px}
+@media (min-width:700px){ .front .qt{font-size:calc(var(--fs) + 4px)} .ox{height:min(24vh,220px)} }
+</style>
+
+<div class="app">
+  <section class="view" id="v-home">
+    <div class="top">
+      <h1>OX 복습</h1><span class="dday" id="dday"></span>
+      <span class="grow"></span><span class="sync" id="sync"></span>
+      <button class="icon-btn" id="fsbtn" aria-label="글자 크기 바꾸기">가</button>
+    </div>
+    <div class="home-scroll">
+      <div class="today">
+        <div class="grow">
+          <div class="lab">오늘 푼 문제</div>
+          <div class="n" id="dueN">–</div>
+          <div class="stat" id="todayStat"></div>
+          <div class="stat" id="lastStat"></div>
+        </div>
+        <button class="btn" id="startDue" disabled>이어서 풀기</button>
+      </div>
+      <div class="chips" id="subjects" role="tablist" aria-label="과목"></div>
+      <div class="chlist" id="chapters"><div class="empty">문제를 불러오는 중이에요.</div></div>
+      <div class="legend"><span><i style="background:var(--ok)"></i>쉬움</span><span><i style="background:var(--accent);opacity:.45"></i>본 문제</span></div>
+      <button class="flag" id="xfer" style="align-self:center">동기화 · 기록 옮기기</button>
+    </div>
+  </section>
+
+  <section class="view" id="v-lock" hidden>
+    <div class="done">
+      <h2>OX 복습</h2>
+      <p style="margin:0;color:var(--sub)">이 기기에서 처음 열었어요. 암호를 한 번 입력하면 다음부터는 바로 열려요.</p>
+      <div class="num"><label class="box" for="lockin"><input id="lockin" type="password" autocomplete="off" placeholder="암호" style="text-align:left;font-size:18px"></label><button class="btn" id="lockok">열기</button></div>
+      <p id="lockmsg" style="margin:0;color:var(--x);min-height:1.5em"></p>
+    </div>
+  </section>
+
+  <section class="view" id="v-quiz" hidden>
+    <div class="qtop">
+      <button class="icon-btn" id="qback" aria-label="그만하고 나가기">←</button>
+      <span class="name" id="qname"></span><span class="cnt" id="qcnt"></span>
+    </div>
+    <div class="prog"><i id="qprog"></i></div>
+    <div class="stage"><div class="card" id="card"></div></div>
+    <div class="ans" id="ans"></div>
+  </section>
+
+  <section class="view" id="v-done" hidden>
+    <div class="done">
+      <h2 id="doneT">끝났어요</h2>
+      <div class="kv"><div><b id="dN">0</b><span>푼 문제</span></div><div><b id="dP">0%</b><span>첫 답 정답률</span></div><div><b id="dT">0</b><span>다음 회차에 나올 문제</span></div></div>
+      <div class="row"><button class="btn" id="more">다음 회차 시작</button><button class="btn ghost" id="home">홈으로</button></div>
+    </div>
+  </section>
+</div>
+<div id="overlay"></div>
+
+<script>
+(function(){
+"use strict";
+var EXAM = "2026-10-31", DAY = 86400000;
+var GAP = {x: 1, h: 1, m: 2, e: 4};   // 다음에 나올 회차 간격: 틀림·어려움 = 매 회차, 보통 = 2회차마다, 쉬움 = 4회차마다
+var $ = function(id){ return document.getElementById(id); };
+var esc = function(s){ return String(s == null ? "" : s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); };
+var rich = function(s){ return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\n/g, "<br>"); };
+var today = function(){ var d = new Date(); return Math.floor((d.getTime() - d.getTimezoneOffset()*60000) / DAY); };
+var chKey = function(s, n){ return s + (n < 10 ? "0" : "") + n; };
+var fmt = function(n){ return Number(n).toLocaleString("ko-KR"); };
+
+/* ---------- 저장: 이 기기(localStorage) + 계정(db) ---------- */
+var LS = { get: function(k, d){ try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } },
+           set: function(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} } };
+var prog = LS.get("ox.prog", {});      // {chKey: {qid: {d,i,r,l,t,g}}}
+var dirty = LS.get("ox.dirty", {});    // {chKey: {qid:1}}
+var flags = LS.get("ox.flags", {});    // {qid: ts}
+var flagsDirty = LS.get("ox.flagsDirty", false);
+var db = null, uid = null, exists = {}, flushing = false, flushTimer = null;
+
+function setSync(t){ $("sync").textContent = t || ""; }
+function saveLocal(){ LS.set("ox.prog", prog); LS.set("ox.dirty", dirty); }
+function col(){ return db.collection("data/users/" + uid); }
+
+function pull(){
+  if (!db || !uid) return Promise.resolve();
+  return col().get().then(function(qs){
+    qs.docs.forEach(function(doc){
+      var data = doc.data() || {};
+      if (doc.id === "flags"){ if (!flagsDirty){ flags = Object.assign({}, data.f || {}); LS.set("ox.flags", flags); } return; }
+      if (doc.id.indexOf("p_") !== 0) return;
+      var ck = doc.id.slice(2), remote = data.c || {}, local = prog[ck] || (prog[ck] = {});
+      exists[ck] = true;
+      Object.keys(remote).forEach(function(q){
+        var r = remote[q], l = local[q];
+        if (!l || (r.t || 0) > (l.t || 0)){ local[q] = r; if (dirty[ck]) delete dirty[ck][q]; }
+        else if ((l.t || 0) > (r.t || 0)){ (dirty[ck] || (dirty[ck] = {}))[q] = 1; }
+      });
+      Object.keys(local).forEach(function(q){ if (!(q in remote)) (dirty[ck] || (dirty[ck] = {}))[q] = 1; });
+    });
+    Object.keys(prog).forEach(function(ck){ if (!exists[ck] && Object.keys(prog[ck]).length){ dirty[ck] = dirty[ck] || {}; Object.keys(prog[ck]).forEach(function(q){ dirty[ck][q] = 1; }); } });
+    saveLocal(); setSync("저장됨"); scheduleFlush(300);
+  }).catch(function(){ setSync("이 기기에만 저장 중"); });
+}
+function scheduleFlush(ms){ clearTimeout(flushTimer); if (!db && GH && GH.token) ms = Math.max(ms || 0, 12000); flushTimer = setTimeout(flush, ms == null ? 1500 : ms); }
+function flush(){
+  if (!db && GH && GH.token){ clearTimeout(flushTimer); ghSync(); return; }
+  if (!db || !uid || flushing) return;
+  var keys = Object.keys(dirty).filter(function(k){ return Object.keys(dirty[k]).length; });
+  if (!keys.length && !flagsDirty) return;
+  flushing = true; setSync("저장 중…");
+  var chain = Promise.resolve(), failed = false;
+  keys.forEach(function(ck){
+    chain = chain.then(function(){
+      var ids = Object.keys(dirty[ck]), body = {};
+      var src = exists[ck] ? ids : Object.keys(prog[ck] || {});
+      src.forEach(function(q){ if (prog[ck] && prog[ck][q]) body[q] = prog[ck][q]; });
+      var ref = col().doc("p_" + ck);
+      var p = exists[ck] ? ref.update({c: body}) : ref.set({c: body});
+      return p.then(function(){ exists[ck] = true; ids.forEach(function(q){ if (dirty[ck]) delete dirty[ck][q]; }); })
+              .catch(function(){ failed = true; });
+    });
+  });
+  if (flagsDirty) chain = chain.then(function(){ return col().doc("flags").set({f: flags}).then(function(){ flagsDirty = false; LS.set("ox.flagsDirty", false); }).catch(function(){ failed = true; }); });
+  chain.then(function(){ flushing = false; saveLocal(); setSync(failed ? "저장 실패 · 다시 시도할게요" : "저장됨");
+    if (failed) scheduleFlush(8000); else if (Object.keys(dirty).some(function(k){ return Object.keys(dirty[k]).length; })) scheduleFlush(500); });
+}
+function connect(){
+  if (!window.claude || !window.claude.use){ if (GH && GH.token) ghSync().then(renderHome); else setSync("이 기기에만 저장 중"); return; }
+  Promise.all([window.claude.use("db"), window.claude.use("user")]).then(function(r){
+    if (!r[0] || !r[1]){ setSync("이 기기에만 저장 중"); return; }
+    db = r[0];
+    return r[1].id().then(function(id){ if (!id){ db = null; setSync("이 기기에만 저장 중"); return; } uid = id; return pull().then(renderHome); });
+  }).catch(function(){ setSync("이 기기에만 저장 중"); });
+}
+document.addEventListener("visibilitychange", function(){ if (document.hidden) flush(); else if (db && uid && $("v-quiz").hidden) pull().then(renderHome); else if (!db && GH && GH.token && $("v-quiz").hidden) ghSync().then(renderHome); });
+
+/* ---------- 암호화 판(단독 웹앱): 문제·그림은 암호문으로 올라가 있고 이 기기에서 푼다 ---------- */
+var ENC = !!window.OX_ENC, KEY = null, blobs = {};
+function b64d(t){ var b = atob(t), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+function b64e(u){ var t = ""; u = new Uint8Array(u); for (var i = 0; i < u.length; i++) t += String.fromCharCode(u[i]); return btoa(t); }
+function dec(buf){ var u = new Uint8Array(buf); return crypto.subtle.decrypt({name: "AES-GCM", iv: u.slice(0, 12)}, KEY, u.slice(12)); }
+function fetchBin(path){ return fetch(path + ".enc").then(function(r){ if (!r.ok) throw 0; return r.arrayBuffer(); }).then(dec); }
+function getJSON(path){
+  if (!ENC) return fetch(path).then(function(r){ if (!r.ok) throw 0; return r.json(); });
+  return fetchBin(path).then(function(b){ return JSON.parse(new TextDecoder().decode(b)); });
+}
+function imgSrc(path){
+  if (!ENC) return Promise.resolve(path);
+  if (blobs[path]) return Promise.resolve(blobs[path]);
+  return fetchBin(path).then(function(b){ return (blobs[path] = URL.createObjectURL(new Blob([b], {type: "image/png"}))); });
+}
+function useRaw(raw, cfg){
+  return crypto.subtle.importKey("raw", raw, "AES-GCM", false, ["decrypt"]).then(function(k){ KEY = k; return dec(b64d(cfg.check)); })
+    .then(function(b){ if (new TextDecoder().decode(b) !== "ox-review") throw 0; });
+}
+function ensureKey(){
+  if (!ENC) return Promise.resolve();
+  return fetch("enc.json").then(function(r){ if (!r.ok) throw 0; return r.json(); }).then(function(cfg){
+    // 암호 → 열쇠. 맞으면 이 기기에 열쇠를 저장한다
+    var tryPass = function(pw){
+      return crypto.subtle.importKey("raw", new TextEncoder().encode(pw), "PBKDF2", false, ["deriveBits"])
+        .then(function(k){ return crypto.subtle.deriveBits({name: "PBKDF2", hash: "SHA-256", salt: b64d(cfg.salt), iterations: cfg.iter}, k, 256); })
+        .then(function(raw){ return useRaw(raw, cfg).then(function(){ LS.set("ox.key", {s: cfg.salt, k: b64e(raw)}); }); });
+    };
+    var ask = function(msg){
+      return new Promise(function(done){
+        show("lock"); $("lockmsg").textContent = msg || "";
+        var go = function(){
+          var pw = $("lockin").value; if (!pw) return;
+          $("lockmsg").textContent = "확인하는 중…";
+          tryPass(pw).then(function(){ $("lockin").value = ""; $("lockmsg").textContent = ""; show("home"); done(); },
+                           function(){ KEY = null; $("lockmsg").textContent = "암호가 맞지 않아요."; });
+        };
+        $("lockok").onclick = go; $("lockin").onkeydown = function(e){ if (e.key === "Enter") go(); };
+      });
+    };
+    // 열쇠 링크(주소 끝 #k=암호): 한 번 열면 저장된다. 아이폰은 이 주소 그대로 '홈 화면에 추가'하면 홈 화면 앱에도 열쇠가 들어간다
+    var hk = (location.hash.match(/^#k=(.+)$/) || [])[1], saved = LS.get("ox.key", null);
+    var fromSaved = function(){ return saved && saved.s === cfg.salt ? useRaw(b64d(saved.k), cfg).catch(function(){ KEY = null; return ask("열쇠가 바뀌었어요. 암호를 다시 넣어 주세요."); }) : ask(); };
+    if (hk){ var pw; try { pw = decodeURIComponent(hk); } catch(e){ pw = hk; } return tryPass(pw).catch(function(){ KEY = null; return fromSaved(); }); }
+    return fromSaved();
+  });
+}
+
+/* ---------- 문제 데이터 ---------- */
+var manifest = null, bank = {}, curSubj = LS.get("ox.subj", null);
+function loadChapter(s, n){
+  var ck = chKey(s, n);
+  if (bank[ck]) return Promise.resolve(bank[ck]);
+  return getJSON("data/" + s + "/" + (n < 10 ? "0" : "") + n + ".json").then(function(d){
+    d.key = ck; d.secT = {}; (d.sections || []).forEach(function(x){ d.secT[x.id] = x.title; });
+    d.questions.forEach(function(q){ q.ck = ck; });
+    bank[ck] = d; return d;
+  });
+}
+function st(q){ return (prog[q.ck] || {})[q.id]; }
+function chStats(c, s){
+  var ck = chKey(s, c.n), p = prog[ck] || {}, ids = c.ids || [], o = {total: ids.length, seen: 0, mast: 0};
+  ids.forEach(function(id){ var x = p[id]; if (!x) return; o.seen++; if (x.g === "e") o.mast++; });
+  return o;
+}
+/* 회차: 문제마다 k(마지막으로 푼 회차)·nr(다음에 나올 회차)를 기록에 둔다. 회차 번호와 남은 문제는 기록에서 계산하므로
+   중간에 나가도 그 자리부터 이어진다. 회차 기록이 없는 예전 기록은 1회차에 푼 것으로 본다. */
+function rk(x){ return !x ? {k: 0, nr: 1} : x.k == null ? {k: 1, nr: 1 + (GAP[x.g] || 1)} : {k: x.k, nr: x.nr}; }
+function isPast(q){ return /^기출/.test(q.src || ""); }
+function trIds(d, tr){ return d.questions.filter(function(q){ return isPast(q) === (tr === "p"); }).map(function(q){ return q.id; }); }
+function trState(ck, ids){
+  var p = prog[ck] || {}, rs = ids.map(function(id){ return rk(p[id]); }), R = 1, o = {fresh: false, pull: false};
+  rs.forEach(function(r){ if (r.k > R) R = r.k; });
+  var pick = function(){ return ids.filter(function(id, j){ return rs[j].k < R && rs[j].nr <= R; }); };
+  var pend = pick();
+  if (!pend.length && ids.length){   // 이번 회차를 다 풀었다 → 다음 회차. 나올 문제가 없으면 가장 먼저 돌아올 문제들을 당겨 온다
+    R++; o.fresh = true; pend = pick();
+    if (!pend.length){ var mn = Math.min.apply(null, rs.map(function(r){ return r.nr; })); o.pull = true; pend = ids.filter(function(id, j){ return rs[j].nr === mn; }); }
+  }
+  o.R = R; o.pend = pend; o.size = pend.length + (o.fresh ? 0 : rs.filter(function(r){ return r.k === R; }).length);
+  return o;
+}
+
+/* ---------- 홈 ---------- */
+function renderHome(){
+  if (!manifest) return;
+  var t = today();
+  var dd = Math.ceil((new Date(EXAM + "T00:00:00").getTime() - new Date(new Date().toDateString()).getTime()) / DAY);
+  $("dday").textContent = dd > 0 ? "D-" + dd : (dd === 0 ? "D-DAY" : "");
+  var doneToday = 0, okToday = 0, last = LS.get("ox.last", null);
+  Object.keys(prog).forEach(function(ck){ var p = prog[ck]; Object.keys(p).forEach(function(q){ var x = p[q]; if (x.t && Math.floor((x.t - new Date().getTimezoneOffset()*60000) / DAY) === t){ doneToday++; if (x.g !== "x") okToday++; } }); });
+  $("dueN").textContent = fmt(doneToday);
+  $("todayStat").textContent = doneToday ? "정답 " + Math.round(okToday / doneToday * 100) + "%" : "오늘은 아직 안 풀었어요";
+  $("startDue").disabled = !last;
+  $("lastStat").textContent = last ? "마지막: " + last.name : "";
+  var subs = manifest.subjects.filter(function(s){ return s.chapters.length; });
+  if (!curSubj || !subs.some(function(s){ return s.id === curSubj; })) curSubj = subs.length ? subs[0].id : null;
+  $("subjects").innerHTML = subs.map(function(s){ var n = s.chapters.reduce(function(a, c){ return a + (c.ids || []).length; }, 0);
+    return '<button class="chip" role="tab" data-s="' + s.id + '" aria-pressed="' + (s.id === curSubj) + '">' + esc(s.name) + '<small>' + fmt(n) + '</small></button>'; }).join("");
+  var S = subs.filter(function(s){ return s.id === curSubj; })[0];
+  $("chapters").innerHTML = !S ? '<div class="empty">아직 등록된 문제가 없어요.</div>' : S.chapters.map(function(c){
+    var x = chStats(c, S.id), m = x.total ? x.mast / x.total * 100 : 0, sn = x.total ? (x.seen - x.mast) / x.total * 100 : 0;
+    return '<button class="ch" data-s="' + S.id + '" data-n="' + c.n + '"><span class="no">' + c.n + '장</span><span class="ti">' + esc(c.title) + '</span>' +
+      '<span></span>' +
+      '<span class="meta"><span class="bar"><i class="m" style="width:' + m + '%"></i><i class="s" style="width:' + sn + '%"></i></span><span>' + x.seen + ' / ' + x.total + '</span></span></button>';
+  }).join("");
+}
+$("subjects").addEventListener("click", function(e){ var b = e.target.closest(".chip"); if (!b) return; curSubj = b.dataset.s; LS.set("ox.subj", curSubj); renderHome(); });
+$("chapters").addEventListener("click", function(e){ var b = e.target.closest(".ch"); if (b) openSheet(b.dataset.s, +b.dataset.n); });
+$("fsbtn").addEventListener("click", function(){ var o = ["s", "m", "l", "xl"], c = LS.get("ox.fs", "m"), n = o[(o.indexOf(c) + 1) % o.length]; LS.set("ox.fs", n); applyFs(); });
+function applyFs(){ var f = LS.get("ox.fs", "m"); if (f === "m") document.documentElement.removeAttribute("data-fs"); else document.documentElement.setAttribute("data-fs", f); }
+
+function trName(tr){ return tr === "p" ? "기출문제" : "예상문제"; }
+function openSheet(s, n){
+  var S0 = manifest.subjects.filter(function(x){ return x.id === s; })[0], c = S0.chapters.filter(function(x){ return x.n === n; })[0];
+  loadChapter(s, n).then(function(d){
+    var ov = $("overlay"), mk = function(tr, sub){
+      var ids = trIds(d, tr), x = trState(d.key, ids);
+      return '<button class="mode' + (tr === "p" ? " main" : "") + '" data-m="' + tr + '"' + (ids.length ? '' : ' disabled') + '><div><b>' + trName(tr) + '</b><span>' +
+        (ids.length ? x.R + '회차 · 남은 문제 ' + x.pend.length + ' / ' + x.size : sub) + '</span></div><span class="cnt">' + ids.length + '</span></button>';
+    };
+    ov.innerHTML = '<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-label="' + esc(c.title) + '">' +
+      '<h2>' + n + '장 ' + esc(c.title) + '</h2><p>' + esc(S0.name) + ' · ' + d.questions.length + '문제 · 1회차는 처음부터 끝까지, 그다음 회차부터는 틀림·어려움은 매번, 보통은 2회차마다, 쉬움은 4회차마다 나와요</p>' +
+      mk("p", "이 장에는 기출 문제가 없어요") + mk("v", "이 장에는 예상 문제가 없어요") + '</div></div>';
+    $("scrim").addEventListener("click", function(e){
+      if (e.target.id === "scrim"){ ov.innerHTML = ""; return; }
+      var b = e.target.closest(".mode"); if (!b || b.disabled) return;
+      ov.innerHTML = ""; startSession({s: s, n: n, tr: b.dataset.m, name: S0.name + " " + n + "장 " + trName(b.dataset.m)});
+    });
+  }).catch(function(){ setSync("문제를 불러오지 못했어요"); });
+}
+$("startDue").addEventListener("click", function(){ var last = LS.get("ox.last", null); if (last) startSession(last); });
+
+/* ---------- 세션 ---------- */
+var S = null;
+function shuffle(a){ for (var i = a.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function startSession(cfg){
+  loadChapter(cfg.s, cfg.n).then(function(d){
+    var ids = trIds(d, cfg.tr), x = trState(d.key, ids), p = prog[d.key] || (prog[d.key] = {});
+    if (!x.pend.length){ show("home"); renderHome(); return; }
+    if (x.pull){   // 당겨 온 문제는 이번 회차 것으로 기록해 둔다(중간에 나가도 이어지게)
+      x.pend.forEach(function(id){ var o = p[id], r = rk(o); o.k = r.k; o.nr = x.R; o.t = (o.t || 0) + 1; (dirty[d.key] || (dirty[d.key] = {}))[id] = 1; });
+      saveLocal(); scheduleFlush();
+    }
+    var want = {}; x.pend.forEach(function(id){ want[id] = 1; });
+    var q = d.questions.filter(function(y){ return want[y.id]; });
+    LS.set("ox.last", cfg);
+    S = {cfg: cfg, R: x.R, queue: q, total: x.size, done: x.size - q.length, first: {}, right: 0, cur: null, answered: null};
+    $("qname").textContent = cfg.n + "장 " + trName(cfg.tr) + " · " + x.R + "회차"; show("quiz"); nextCard(true);
+  }).catch(function(){ setSync("문제를 불러오지 못했어요"); });
+}
+function show(v){ ["home", "quiz", "done", "lock"].forEach(function(k){ $("v-" + k).hidden = k !== v; }); }
+function flip(fn){
+  var c = $("card"); c.classList.remove("in"); c.classList.add("out");
+  var done = false, go = function(){ if (done) return; done = true; c.classList.remove("out"); fn(); c.classList.add("in"); };
+  c.addEventListener("animationend", go, {once: true}); setTimeout(go, 260);
+}
+function tagsHtml(q){
+  var d = bank[q.ck], h = '<div class="tags">';
+  h += '<span class="tag">' + esc(q.sec + " " + (d.secT[q.sec] || "")) + '</span>';
+  h += /^기출/.test(q.src || "") ? '<span class="tag gi">' + esc(q.src) + '</span>' : '';
+  if (!st(q)) h += '<span class="tag">새 문제</span>';
+  return h + '</div>';
+}
+function nextCard(first){
+  if (!S.queue.length) return finish();
+  S.cur = S.queue.shift(); S.answered = null;
+  var q = S.cur, paint = function(){
+    $("card").innerHTML = tagsHtml(q) + '<div class="front"><div class="qt">' + esc(q.q) + '</div></div>';
+    renderAns();
+  };
+  $("qcnt").textContent = S.done + " / " + S.total;
+  $("qprog").style.width = (S.done / S.total * 100) + "%";
+  if (first){ $("card").classList.remove("out", "in"); paint(); } else flip(paint);
+}
+function renderAns(){
+  var q = S.cur, a = $("ans");
+  if (q.type === "mc"){
+    a.innerHTML = '<div class="mc">' + q.choices.map(function(c, i){ return '<button data-i="' + i + '"><span class="i">' + "①②③④⑤"[i] + '</span><span>' + esc(c) + '</span></button>'; }).join("") + '</div>';
+  } else if (q.type === "num"){
+    a.innerHTML = '<div class="num"><label class="box" for="numin"><input id="numin" inputmode="decimal" autocomplete="off" placeholder="숫자 입력"><span class="u">' + esc(q.unit || "") + '</span></label><button class="btn" id="numok">확인</button></div><div class="hint">쉼표 없이 숫자만 넣어도 돼요</div>';
+    $("numin").addEventListener("input", function(e){ var v = e.target.value.replace(/[^0-9.\-]/g, ""); var p = v.split("."); p[0] = p[0].replace(/\B(?=(\d{3})+(?!\d))/g, ","); e.target.value = p.join("."); });
+    $("numin").addEventListener("keydown", function(e){ if (e.key === "Enter") $("numok").click(); });
+  } else {
+    a.innerHTML = '<div class="ox"><button class="bo" data-v="1" aria-label="O, 옳다">O</button><button class="bx" data-v="0" aria-label="X, 틀리다">X</button></div>';
+  }
+}
+$("ans").addEventListener("click", function(e){
+  if (!S || !S.cur) return;
+  var q = S.cur, b = e.target.closest("button"); if (!b) return;
+  if (S.answered === null){
+    if (q.type === "ox" && b.dataset.v != null) answer((b.dataset.v === "1") === q.a, b.dataset.v === "1" ? "O" : "X");
+    else if (q.type === "mc" && b.dataset.i != null) answer(+b.dataset.i === q.a, "①②③④⑤"[+b.dataset.i]);
+    else if (q.type === "num" && b.id === "numok"){ var raw = $("numin").value.replace(/,/g, "").trim(); if (raw === "" || isNaN(+raw)) return; answer(Math.abs(+raw - q.a) <= (q.tol || 0), fmt(+raw) + (q.unit || "")); }
+  } else if (b.dataset.g) rate(b.dataset.g);
+});
+function answer(ok, picked){
+  var q = S.cur; S.answered = ok;
+  if (!(q.id in S.first)){ S.first[q.id] = ok; if (ok) S.right++; }
+  var s = st(q), correct = q.type === "ox" ? (q.a ? "O" : "X") : q.type === "mc" ? "①②③④⑤"[q.a] : fmt(q.a) + (q.unit || "");
+  flip(function(){
+    var mk = q.type === "ox" ? '<div class="mark ' + (q.a ? "o" : "x") + '">' + correct + '</div>' : '<div class="mark n">정답</div>';
+    var h = '<div class="back-head">' + mk + '<div><div class="res ' + (ok ? "right" : "wrong") + '">' + (ok ? "맞았어요" : "틀렸어요 · 내 답 " + esc(picked)) + '</div><div class="qt">' + esc(q.q) + '</div></div></div><div class="back-body">';
+    if (q.type === "mc") h += '<div class="choice-ans"><span class="k">정답 ' + correct + '</span>' + esc(q.choices[q.a]) + '</div>';
+    if (q.type === "num") h += '<div class="choice-ans"><span class="k">정답</span>' + esc(correct) + '</div>';
+    if (q.type === "ox" && q.a === false && q.fix) h += '<div class="fix"><span class="k">옳은 문장</span>' + rich(q.fix) + '</div>';
+    h += '<div class="exp">' + rich(q.exp) + '</div>';
+    if (q.fig){ var d = bank[q.ck], src = "img/" + d.subject + "/" + (d.chapter < 10 ? "0" : "") + d.chapter + "/" + q.fig + ".png";
+      h += '<button class="figbtn" data-p="' + src + '" aria-label="그림 크게 보기"><img alt="이 절의 도해"></button><div class="figcap">그림을 누르면 크게 볼 수 있어요</div>'; }
+    if (q.cite) h += '<div class="cite">근거 ' + esc(q.cite) + (q.src && !/^기출/.test(q.src) ? "" : " · " + esc(q.src || "")) + '</div>';
+    h += '<button class="flag" data-id="' + q.id + '" aria-pressed="' + !!flags[q.id] + '">' + (flags[q.id] ? "표시해 뒀어요" : "이 문제 이상해요") + '</button></div>';
+    $("card").innerHTML = h;
+    var fb = $("card").querySelector(".figbtn");
+    if (fb) imgSrc(fb.dataset.p).then(function(u){ fb.dataset.src = u; fb.firstChild.src = u; }).catch(function(){ fb.hidden = true; });
+    var a = $("ans");
+    if (ok && s && s.k === S.R) a.innerHTML = '<button class="btn next" data-g="h">다음 문제</button><div class="hint">이번 회차에 틀렸던 문제라 다음 회차에 다시 나와요</div>';
+    else if (ok) a.innerHTML = '<div class="rate"><button class="h" data-g="h">어려움<small>매 회차</small></button><button data-g="m">보통<small>2회차마다</small></button><button class="e" data-g="e">쉬움<small>4회차마다</small></button></div>';
+    else a.innerHTML = '<button class="btn next" data-g="x">다음 문제</button><div class="hint">틀린 문제는 조금 뒤에 다시 나오고, 다음 회차에도 나와요</div>';
+  });
+}
+function rate(g){
+  var q = S.cur, s = st(q) || {r: 0, l: 0}, R = S.R, redo = s.k === R;   // redo = 이번 회차에 틀려서 다시 나온 문제 → 틀린 문제로 남긴다
+  var gap = redo ? 1 : GAP[g];
+  var n = {k: R, nr: R + gap, d: today() + gap, i: gap, r: (s.r || 0) + (redo ? 0 : 1), l: (s.l || 0) + (g === "x" ? 1 : 0), t: Date.now(), g: redo ? "x" : g};
+  (prog[q.ck] || (prog[q.ck] = {}))[q.id] = n; (dirty[q.ck] || (dirty[q.ck] = {}))[q.id] = 1; saveLocal(); scheduleFlush();
+  if (g === "x") S.queue.splice(Math.min(4, S.queue.length), 0, q); else S.done++;
+  S.cur = null; nextCard();
+}
+function finish(){
+  flush();
+  var d = bank[chKey(S.cfg.s, S.cfg.n)], n = Object.keys(S.first).length, nx = trState(d.key, trIds(d, S.cfg.tr));
+  $("dN").textContent = fmt(n); $("dP").textContent = (n ? Math.round(S.right / n * 100) : 0) + "%"; $("dT").textContent = fmt(nx.pend.length);
+  $("doneT").textContent = S.cfg.n + "장 " + trName(S.cfg.tr) + " " + S.R + "회차 끝";
+  $("more").hidden = !nx.pend.length; show("done");
+}
+$("more").addEventListener("click", function(){ startSession(S.cfg); });
+$("home").addEventListener("click", function(){ show("home"); renderHome(); });
+$("qback").addEventListener("click", function(){ flush(); S = null; show("home"); renderHome(); });
+$("card").addEventListener("click", function(e){
+  var f = e.target.closest(".figbtn");
+  if (f){ if (!f.dataset.src) return; $("overlay").innerHTML = '<div class="zoom" id="zoom"><img alt="도해 크게 보기" src="' + f.dataset.src + '"><button>닫기</button></div>'; $("zoom").addEventListener("click", function(ev){ if (ev.target.tagName !== "IMG") $("overlay").innerHTML = ""; }); return; }
+  var g = e.target.closest(".flag");
+  if (g){ var id = g.dataset.id; if (flags[id]) delete flags[id]; else flags[id] = Date.now(); flagsDirty = true; LS.set("ox.flags", flags); LS.set("ox.flagsDirty", true);
+    g.setAttribute("aria-pressed", !!flags[id]); g.textContent = flags[id] ? "표시해 뒀어요" : "이 문제 이상해요"; scheduleFlush(); }
+});
+document.addEventListener("keydown", function(e){
+  if (!S || !S.cur || $("v-quiz").hidden || e.target.tagName === "INPUT") return;
+  var k = e.key.toLowerCase(), a = $("ans"), hit = function(sel){ var b = a.querySelector(sel); if (b) b.click(); };
+  if (S.answered === null){ if (k === "o" || k === "arrowleft") hit('[data-v="1"]'); else if (k === "x" || k === "arrowright") hit('[data-v="0"]'); else if (/^[1-5]$/.test(k)) hit('[data-i="' + (k - 1) + '"]'); }
+  else if (S.answered){ if (k === "1") hit('[data-g="h"]'); else if (k === "2" || k === " " || k === "enter") hit('[data-g="m"]'); else if (k === "3") hit('[data-g="e"]'); }
+  else if (k === " " || k === "enter") hit('[data-g="x"]');
+});
+
+/* ---------- 단독 웹앱: GitHub 비공개 Gist 동기화 + 수동 옮기기 ---------- */
+var GH = LS.get("ox.gh", null), GH_FILE = "ox-review-progress.json", GH_DESC = "ox-review-progress (중개사 OX 복습 학습 기록)", ghBusy = false, ghAgain = false;
+function mergeIn(d){
+  var took = 0, localNewer = false, rp = (d && d.prog) || {}, rf = (d && d.flags) || {};
+  Object.keys(rp).forEach(function(ck){ var src = rp[ck] || {}, dst = prog[ck] || (prog[ck] = {});
+    Object.keys(src).forEach(function(q){ var r = src[q]; if (!r || typeof r.t !== "number") return; if (!dst[q] || r.t > (dst[q].t || 0)){ dst[q] = r; took++; (dirty[ck] || (dirty[ck] = {}))[q] = 1; } }); });
+  Object.keys(prog).forEach(function(ck){ var src = rp[ck] || {}; Object.keys(prog[ck]).forEach(function(q){ if (!src[q] || (prog[ck][q].t || 0) > (src[q].t || 0)) localNewer = true; }); });
+  Object.keys(rf).forEach(function(k){ if (!flags[k]) flags[k] = rf[k]; });
+  Object.keys(flags).forEach(function(k){ if (!rf[k]) localNewer = true; });
+  saveLocal(); LS.set("ox.flags", flags);
+  return {took: took, localNewer: localNewer};
+}
+function gh(method, path, body){
+  return fetch("https://api.github.com" + path, {method: method, headers: {"Authorization": "Bearer " + GH.token, "Accept": "application/vnd.github+json"}, body: body ? JSON.stringify(body) : undefined})
+    .then(function(r){ if (!r.ok) throw {status: r.status}; return r.json(); });
+}
+function ghEnsure(){
+  if (GH.id) return Promise.resolve();
+  return gh("GET", "/gists?per_page=100").then(function(list){
+    var f = list.filter(function(g){ return g.files && g.files[GH_FILE]; })[0];
+    if (f){ GH.id = f.id; LS.set("ox.gh", GH); return; }
+    var files = {}; files[GH_FILE] = {content: JSON.stringify({v: 1, prog: {}, flags: {}})};
+    return gh("POST", "/gists", {description: GH_DESC, public: false, files: files}).then(function(g){ GH.id = g.id; LS.set("ox.gh", GH); });
+  });
+}
+function ghSync(){
+  if (!GH || !GH.token) return Promise.resolve();
+  if (ghBusy){ ghAgain = true; return Promise.resolve(); }
+  ghBusy = true; setSync("동기화 중…");
+  return ghEnsure().then(function(){ return gh("GET", "/gists/" + GH.id); }).then(function(g){
+    var f = g.files && g.files[GH_FILE]; if (!f) return "{}";
+    return f.truncated ? fetch(f.raw_url).then(function(r){ return r.text(); }) : f.content;
+  }).then(function(txt){
+    var d; try { d = JSON.parse(txt || "{}"); } catch(e){ d = {}; }
+    var m = mergeIn(d);
+    if (!m.localNewer) return;
+    var files = {}; files[GH_FILE] = {content: JSON.stringify({v: 1, at: Date.now(), prog: prog, flags: flags})};
+    return gh("PATCH", "/gists/" + GH.id, {files: files});
+  }).then(function(){ setSync("동기화됨"); }, function(e){
+    if (e && e.status === 404 && GH && GH.id){ GH.id = null; LS.set("ox.gh", GH); }
+    setSync(e && e.status === 401 ? "토큰 만료 · 다시 연결하세요" : e && e.status === 403 ? "토큰에 gist 권한이 없어요" : "동기화 실패 · 나중에 다시 시도해요");
+  }).then(function(){ ghBusy = false; if (ghAgain){ ghAgain = false; return ghSync(); } });
+}
+$("xfer").addEventListener("click", function(){
+  var ov = $("overlay"), standalone = !db;
+  var box = 'style="width:100%;font:inherit;border:1px solid var(--line);border-radius:10px;padding:12px;background:var(--bg);color:var(--ink)"';
+  var syncHtml = !standalone ? '<p>지금은 클로드 계정에 자동으로 저장되고 있어요.</p>' :
+    (GH && GH.token ? '<p>GitHub 비공개 Gist와 동기화하고 있어요.</p><div class="row"><button class="btn" id="ghnow">지금 동기화</button><button class="btn ghost" id="ghoff">연결 끊기</button></div>' :
+    '<p>아이폰과 아이패드의 기록을 맞추려면 GitHub 토큰을 연결하세요. 할 일 메모 앱과 같은 방식이에요. 토큰은 gist 권한만 있으면 되고 이 기기에만 저장돼요.</p>' +
+    '<p><a href="https://github.com/settings/tokens/new?scopes=gist&description=ox-review" target="_blank" rel="noopener" style="color:var(--accent)">토큰 만들기 페이지 열기</a> → 만료 없음 선택 → Generate token → 복사</p>' +
+    '<input id="ghtok" type="password" autocomplete="off" placeholder="토큰 붙여 넣기 (ghp_…)" ' + box + '>' +
+    '<button class="btn" id="ghon">연결</button>');
+  ov.innerHTML = '<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-label="동기화와 기록 옮기기"><h2>동기화</h2>' + syncHtml + '<p id="ghmsg"></p>' +
+    '<h2 style="margin-top:10px">직접 옮기기</h2><p>이 기기의 기록을 복사해서 다른 기기에 붙여 넣으면 두 기록이 합쳐져요. 문제마다 더 최근에 푼 쪽이 남아요.</p>' +
+    '<textarea id="xbox" rows="4" placeholder="다른 기기에서 복사한 기록을 여기에 붙여 넣기" ' + box.replace("font:inherit", "font:12px/1.4 ui-monospace,monospace") + '></textarea>' +
+    '<div class="row"><button class="btn ghost" id="xcopy">이 기기 기록 복사</button><button class="btn ghost" id="xin">붙여 넣은 기록 합치기</button></div><p id="xmsg"></p></div></div>';
+  var close = function(){ ov.innerHTML = ""; renderHome(); };
+  $("scrim").addEventListener("click", function(e){ if (e.target.id === "scrim") close(); });
+  if ($("ghon")) $("ghon").addEventListener("click", function(){
+    var t = $("ghtok").value.trim(); if (!t){ $("ghmsg").textContent = "토큰을 붙여 넣으세요."; return; }
+    GH = {token: t, id: null}; $("ghmsg").textContent = "연결하는 중…";
+    ghEnsure().then(function(){ LS.set("ox.gh", GH); return ghSync(); }).then(function(){ close(); }, function(e){
+      GH = null; LS.set("ox.gh", null);
+      $("ghmsg").textContent = e && e.status === 401 ? "토큰이 맞지 않아요. 다시 복사해 붙여 넣으세요." : e && (e.status === 403 || e.status === 404) ? "토큰에 gist 권한이 없어요. 만들 때 gist를 체크하세요." : "연결하지 못했어요. 인터넷 연결을 확인하세요."; });
+  });
+  if ($("ghnow")) $("ghnow").addEventListener("click", function(){ $("ghmsg").textContent = "동기화하는 중…"; ghSync().then(function(){ $("ghmsg").textContent = $("sync").textContent; }); });
+  if ($("ghoff")) $("ghoff").addEventListener("click", function(){ GH = null; LS.set("ox.gh", null); setSync("이 기기에만 저장 중"); close(); });
+  $("xcopy").addEventListener("click", function(){
+    var t = JSON.stringify({v: 1, prog: prog, flags: flags}); $("xbox").value = t; $("xbox").select();
+    var ok = function(){ $("xmsg").textContent = "복사했어요. 다른 기기에서 이 화면을 열고 붙여 넣으세요."; }, no = function(){ $("xmsg").textContent = "위 상자의 글자를 전부 선택해 복사하세요."; };
+    try { navigator.clipboard.writeText(t).then(ok, no); } catch(e){ no(); }
+  });
+  $("xin").addEventListener("click", function(){
+    var d; try { d = JSON.parse($("xbox").value); } catch(e){ d = null; }
+    if (!d || typeof d.prog !== "object"){ $("xmsg").textContent = "기록 형식이 아니에요. 복사한 글자를 전부 붙여 넣었는지 확인하세요."; return; }
+    var m = mergeIn(d); scheduleFlush(300);
+    $("xmsg").textContent = m.took + "문제의 기록을 합쳤어요.";
+  });
+});
+
+/* ---------- 시작 ---------- */
+applyFs();
+if ("serviceWorker" in navigator && !window.claude && location.protocol === "https:") { try { navigator.serviceWorker.register("sw.js"); } catch(e){} }
+ensureKey().then(function(){ return getJSON("data/manifest.json"); }).then(function(m){ manifest = m; if (m.exam) EXAM = m.exam; renderHome(); connect(); })
+  .catch(function(){ $("chapters").innerHTML = '<div class="empty">문제 목록을 불러오지 못했어요. 페이지를 다시 열어 주세요.</div>'; });
+})();
+</script>
+
+</body></html>
